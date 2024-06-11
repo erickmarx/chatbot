@@ -7,6 +7,6 @@ export const CONFIG = {
     MODEL: 'gpt-3.5-turbo',
     API_KEY: process.env.OPENAI_API_KEY,
     TEMPERATURE: 0.5,
-    VERBOSE: true,
+    VERBOSE: false,
   },
 };

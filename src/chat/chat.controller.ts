@@ -1,5 +1,6 @@
-import { Body, Controller, Post, Query } from '@nestjs/common';
+import { Body, Controller, Post, Query, Res } from '@nestjs/common';
 import { ChatService } from './chat.service';
+import { NotEmptyPipe } from '../shared/pipe/not-empty.pipe';
 
 @Controller('chat')
 export class ChatController {
@@ -7,8 +8,8 @@ export class ChatController {
 
   @Post()
   async talkChat(
-    @Body('content') content: string,
-    @Query('sessionId') sessionId: string,
+    @Body('content', NotEmptyPipe) content: string,
+    @Query('sessionId', NotEmptyPipe) sessionId: string,
   ) {
     return await this.chatService.chat(sessionId, content);
   }

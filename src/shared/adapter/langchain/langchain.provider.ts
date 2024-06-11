@@ -1,18 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OpenAIProvider } from './openai/openai.provider';
-import {
-  AIMessage,
-  HumanMessage,
-  SystemMessage,
-} from '@langchain/core/messages';
-import {
-  ChatPromptTemplate,
-  MessagesPlaceholder,
-} from '@langchain/core/prompts';
+import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { loadSummarizationChain } from 'langchain/chains';
-
-import { StringOutputParser } from '@langchain/core/output_parsers';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document } from '@langchain/core/documents';
 
 @Injectable()
