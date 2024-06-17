@@ -9,4 +9,12 @@ export const CONFIG = {
     TEMPERATURE: 0.5,
     VERBOSE: false,
   },
+  GOOGLE: {
+    PROJECT_ID: process.env.GOOGLE_PROJECT_ID,
+    FIRESTORE: {
+      DATABASE_ID: process.env.FIRESTORE_DATABASE_ID,
+      PRIVATE_KEY: process.env.FIRESTORE_PRIVATE_KEY,
+      CLIENT_EMAIL: process.env.FIRESTORE_CLIENT_EMAIL,
+    },
+  },
 };

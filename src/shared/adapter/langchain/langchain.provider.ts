@@ -21,15 +21,13 @@ export class LangchainProvider {
     return await this.openAIProvider.chatOpenAI.invoke(inputVariables, {});
   }
 
-  async summarize(question: string, previousSummary?: string) {
+  async summarize(previousSummary: string, question: string) {
     const summarizationChain = loadSummarizationChain(
       this.openAIProvider.chatOpenAI,
     );
 
     const document = new Document({
-      pageContent: previousSummary
-        ? `${previousSummary}\n\n${question}`
-        : question,
+      pageContent: `${previousSummary}\n\n${question}`,
     });
 
     return await summarizationChain.invoke({

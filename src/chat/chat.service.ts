@@ -1,23 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { LangchainProvider } from '../shared/adapter/langchain/langchain.provider';
-
-const summaryHistory = {};
+import { FirestoreProvider } from '../shared/adapter/google/firestore/firestore.provider';
 
 @Injectable()
 export class ChatService {
-  constructor(private langchainService: LangchainProvider) {}
+  constructor(
+    private langchainService: LangchainProvider,
+    private firestoreProvider: FirestoreProvider,
+  ) {}
 
   async chat(sessionId: string, content: string) {
-    const history = summaryHistory[sessionId];
+    const history = await this.firestoreProvider.get(sessionId);
+    const dataHistory = history.data();
+    let summary = '';
 
-    const answer = await this.langchainService.talk(content, history);
+    if (dataHistory) {
+      summary = dataHistory.value;
+    }
 
-    const summary = await this.langchainService.summarize(
-      answer.content as string,
-      history,
-    );
+    const answer = await this.langchainService.talk(content, summary);
 
-    summaryHistory[sessionId] = summary.text;
+    this.langchainService
+      .summarize(summary, answer.content as string)
+      .then(async (summarizedText) => {
+        await this.firestoreProvider.set(sessionId, summarizedText.text);
+      });
 
     return answer.content;
   }
