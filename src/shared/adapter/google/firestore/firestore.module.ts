@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { FirestoreProvider } from './firestore.provider';
+// import { Module } from '@nestjs/common';
+// import { FirestoreProvider } from './firestore.provider';
 
-@Module({ providers: [FirestoreProvider], exports: [FirestoreProvider] })
-export class FirestoreModule {}
+// @Module({ providers: [FirestoreProvider], exports: [FirestoreProvider] })
+// export class FirestoreModule {}

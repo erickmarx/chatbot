@@ -1,37 +1,40 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OpenAIProvider } from './openai/openai.provider';
-import { HumanMessage, SystemMessage } from '@langchain/core/messages';
-import { loadSummarizationChain } from 'langchain/chains';
-import { Document } from '@langchain/core/documents';
+import { ConversationChain } from 'langchain/chains';
+import { FirestoreChatMessageHistory } from '@langchain/community/stores/message/firestore';
+import { BufferMemory } from 'langchain/memory';
 
 @Injectable()
 export class LangchainProvider {
-  constructor(private openAIProvider: OpenAIProvider) {}
+  constructor(
+    private openAIProvider: OpenAIProvider,
+    @Inject(FirestoreChatMessageHistory)
+    private firestoreChatMessageHistory: FirestoreChatMessageHistory,
+  ) {}
 
-  async talk(content: string, summary?: string) {
-    const inputVariables = summary
-      ? [
-          new SystemMessage({
-            content: `Utilizando este sumario das conversas anteriores: ${summary}\n\n Responda a pergunta:`,
-          }),
-          new HumanMessage({ content }),
-        ]
-      : [new HumanMessage({ content })];
-
-    return await this.openAIProvider.chatOpenAI.invoke(inputVariables, {});
-  }
-
-  async summarize(previousSummary: string, question: string) {
-    const summarizationChain = loadSummarizationChain(
-      this.openAIProvider.chatOpenAI,
-    );
-
-    const document = new Document({
-      pageContent: `${previousSummary}\n\n${question}`,
+  async talk(sessionId: string, content: string) {
+    const chain = new ConversationChain({
+      llm: this.openAIProvider.chatOpenAI,
+      memory: this.prepareBufferMemory(sessionId),
     });
 
-    return await summarizationChain.invoke({
-      input_documents: [document],
+    return await chain.predict({ input: content });
+  }
+
+  private prepareBufferMemory(sessionId: string) {
+    const firestoreMemory = Object.assign(
+      Object.create(Object.getPrototypeOf(this.firestoreChatMessageHistory)),
+      this.firestoreChatMessageHistory,
+      { sessionId, userId: sessionId },
+    );
+
+    firestoreMemory['document']['_path']['segments'] = [
+      ...firestoreMemory['collections'],
+      sessionId,
+    ];
+
+    return new BufferMemory({
+      chatHistory: firestoreMemory,
     });
   }
 }
