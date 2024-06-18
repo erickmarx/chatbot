@@ -16,7 +16,7 @@ import admin from 'firebase-admin';
         new FirestoreChatMessageHistory({
           collections: ['chatbot'],
           sessionId: 'sessionId',
-          userId: 'a@example.com',
+          userId: 'userId',
           config: {
             projectId: CONFIG.GOOGLE.PROJECT_ID,
             credential: admin.credential.cert({

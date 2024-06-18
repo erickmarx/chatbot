@@ -106,60 +106,71 @@
         Math.random().toString(36).substring(2, 15);
 
       // Create a new HTML element
-      const sessionIdElement = document.createElement("p");
+      const sessionIdElement = document.createElement('p');
       // Set its text content to the sessionId
-      sessionIdElement.textContent = "Session ID: " + sessionId;
+      sessionIdElement.textContent = 'Session ID: ' + sessionId;
       // Append it to the body before the chatbox
       document
-        .getElementById("sessionIdContainer")
+        .getElementById('sessionIdContainer')
         .appendChild(sessionIdElement);
 
-      const warningElement = document.createElement("p");
-      warningElement.className = "warning";
+      const warningElement = document.createElement('p');
+      warningElement.className = 'warning';
       // Set its text content to the warning message
       warningElement.textContent =
-        "The bot context is individualized by Session ID, reload to generate new Session ID";
+        'The bot context is individualized by Session ID, reload to generate new Session ID';
       // Append it to the sessionIdContainer
-      document.getElementById("sessionIdContainer").appendChild(warningElement);
+      document.getElementById('sessionIdContainer').appendChild(warningElement);
 
       document
-        .getElementById("userInput")
-        .addEventListener("keydown", function (event) {
-          if (event.key === "Enter") {
+        .getElementById('userInput')
+        .addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') {
             event.preventDefault();
             sendMessage();
           }
         });
 
       async function sendMessage() {
-        const input = document.getElementById("userInput").value;
-        document.getElementById("userInput").value = "";
-        const chatbox = document.getElementById("chatbox");
-        const userMessage = document.createElement("div");
+        const inputField = document.getElementById('userInput');
+        const input = inputField.value;
+
+        if (!input.length) return;
+
+        console.log(input);
+        document.getElementById('userInput').value = '';
+        const chatbox = document.getElementById('chatbox');
+
+        inputField.disabled = true;
+
+        const userMessage = document.createElement('div');
         userMessage.innerHTML = '<i class="fas fa-user"></i> ' + input;
-        userMessage.className = "userMessage";
+        userMessage.className = 'userMessage';
         chatbox.appendChild(userMessage);
 
         try {
           const res = await fetch(
-            `http://localhost:3000/chat?sessionId=${sessionId}`,
+            `http://chat-ia-426719.ue.r.appspot.com/chat?sessionId=${sessionId}`,
             {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
               },
               body: JSON.stringify({ content: input }),
-            }
+            },
           );
           if (!res) return;
 
           const { data } = await res.json();
-          const botMessage = document.createElement("div");
+          const botMessage = document.createElement('div');
+
           botMessage.innerHTML = '<i class="fas fa-robot"></i> ' + data;
-          botMessage.className = "botMessage";
+          botMessage.className = 'botMessage';
           chatbox.appendChild(botMessage);
         } catch (e) {
           console.log(data);
+        } finally {
+          inputField.disabled = false;
         }
       }
     </script>
