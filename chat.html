@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Chatbot</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+      }
+
+      #chatbox {
+        width: 300px;
+        height: 400px;
+        border: 1px solid #ccc;
+        overflow: auto;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      #userInput {
+        width: 234px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+      }
+
+      #chat {
+        width: 320px;
+        margin: 0 auto;
+      }
+
+      button {
+        background-color: #4caf50; /* Green */
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 4px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .userMessage {
+        text-align: right;
+        color: blue;
+        background-color: #e6f7ff;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 10px;
+      }
+
+      .botMessage {
+        text-align: left;
+        color: black;
+        background-color: #f2f2f2;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 10px;
+      }
+
+      #sessionIdContainer p {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #e6f7ff; /* light blue */
+        border-radius: 5px;
+        color: #333;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      #sessionIdContainer p.warning {
+        color: red;
+        font-size: 12px;
+        margin-top: 10px;
+        background-color: #ffcccc; /* light red */
+        padding: 5px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chat">
+      <div id="sessionIdContainer"></div>
+      <div id="chatbox"></div>
+      <input id="userInput" type="text" placeholder="Type a message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+      const sessionId =
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
+
+      // Create a new HTML element
+      const sessionIdElement = document.createElement("p");
+      // Set its text content to the sessionId
+      sessionIdElement.textContent = "Session ID: " + sessionId;
+      // Append it to the body before the chatbox
+      document
+        .getElementById("sessionIdContainer")
+        .appendChild(sessionIdElement);
+
+      const warningElement = document.createElement("p");
+      warningElement.className = "warning";
+      // Set its text content to the warning message
+      warningElement.textContent =
+        "The bot context is individualized by Session ID, reload to generate new Session ID";
+      // Append it to the sessionIdContainer
+      document.getElementById("sessionIdContainer").appendChild(warningElement);
+
+      document
+        .getElementById("userInput")
+        .addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+          }
+        });
+
+      async function sendMessage() {
+        const input = document.getElementById("userInput").value;
+        document.getElementById("userInput").value = "";
+        const chatbox = document.getElementById("chatbox");
+        const userMessage = document.createElement("div");
+        userMessage.innerHTML = '<i class="fas fa-user"></i> ' + input;
+        userMessage.className = "userMessage";
+        chatbox.appendChild(userMessage);
+
+        try {
+          const res = await fetch(
+            `http://localhost:3000/chat?sessionId=${sessionId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ content: input }),
+            }
+          );
+          if (!res) return;
+
+          const { data } = await res.json();
+          const botMessage = document.createElement("div");
+          botMessage.innerHTML = '<i class="fas fa-robot"></i> ' + data;
+          botMessage.className = "botMessage";
+          chatbox.appendChild(botMessage);
+        } catch (e) {
+          console.log(data);
+        }
+      }
+    </script>
+  </body>
+</html>
