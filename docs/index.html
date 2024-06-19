@@ -137,11 +137,9 @@
 
         if (!input.length) return;
 
-        console.log(input);
+        inputField.disabled = true;
         document.getElementById('userInput').value = '';
         const chatbox = document.getElementById('chatbox');
-
-        inputField.disabled = true;
 
         const userMessage = document.createElement('div');
         userMessage.innerHTML = '<i class="fas fa-user"></i> ' + input;
